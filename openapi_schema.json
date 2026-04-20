@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://YOUR_DEPLOYED_URL"
+      "url": "https://fundora-3c6x.onrender.com"
     }
   ],
   "paths": {

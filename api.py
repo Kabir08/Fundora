@@ -20,6 +20,7 @@ import numpy as np
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from playwright.sync_api import sync_playwright
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
@@ -419,3 +420,99 @@ def refresh_index():
     t = threading.Thread(target=load_or_build, daemon=True)
     t.start()
     return {"status": "rebuild started"}
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy_policy():
+    """Privacy policy page — required by ChatGPT Actions."""
+    return """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Fundora Scholarship Matcher</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 40px auto; padding: 0 20px; line-height: 1.7; color: #222; }
+    h1 { font-size: 1.8rem; margin-bottom: 4px; }
+    h2 { font-size: 1.2rem; margin-top: 2rem; }
+    p, li { font-size: 0.97rem; }
+    a { color: #0066cc; }
+    footer { margin-top: 3rem; font-size: 0.85rem; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy</h1>
+  <p><strong>Fundora Scholarship Matcher</strong> &mdash; Last updated: April 20, 2026</p>
+
+  <h2>1. Overview</h2>
+  <p>
+    Fundora Scholarship Matcher (&ldquo;the Service&rdquo;) is an AI-powered tool that helps students
+    find relevant scholarship opportunities based on a free-text academic profile they provide.
+    This Privacy Policy explains what information we collect, how it is used, and your rights.
+  </p>
+
+  <h2>2. Information We Collect</h2>
+  <p>We collect only the information you voluntarily submit when using the Service:</p>
+  <ul>
+    <li><strong>Profile text</strong> — the academic background description you type or paste into the
+    search field (e.g. degree level, field of study, nationality).</li>
+    <li><strong>Usage metadata</strong> — standard web-server logs such as IP address, timestamp, and
+    HTTP method, retained for up to 30 days for security and debugging purposes.</li>
+  </ul>
+  <p>We do <strong>not</strong> collect names, email addresses, payment information, or any account
+  credentials.</p>
+
+  <h2>3. How We Use Your Information</h2>
+  <ul>
+    <li>To perform a semantic similarity search against our scholarship index and return relevant results.</li>
+    <li>To monitor service health and fix errors.</li>
+  </ul>
+  <p>We do <strong>not</strong> sell, rent, or share your profile text with third parties.
+  Profile text is never stored persistently &mdash; it exists only in memory during the duration of a
+  single API request and is discarded immediately after the response is sent.</p>
+
+  <h2>4. Third-Party Data Sources</h2>
+  <p>
+    The Service scrapes publicly available scholarship listings from third-party websites
+    (DAAD, GyanDhan, Chevening, UCL, Commonwealth, and others). We do not control the privacy
+    practices of those sites. The scraped content is cached locally for up to 24 hours to
+    reduce load on external servers.
+  </p>
+
+  <h2>5. ChatGPT / OpenAI Integration</h2>
+  <p>
+    When accessed through a ChatGPT Custom GPT, your profile text is transmitted from
+    OpenAI&rsquo;s servers to this API over HTTPS. OpenAI&rsquo;s own
+    <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener">Privacy Policy</a>
+    governs how ChatGPT handles your conversations.
+  </p>
+
+  <h2>6. Data Security</h2>
+  <p>
+    All data in transit is protected by TLS (HTTPS). The Service is hosted on Render.com;
+    Render&rsquo;s infrastructure security practices apply to data at rest.
+  </p>
+
+  <h2>7. Children&rsquo;s Privacy</h2>
+  <p>
+    The Service is not directed at children under 13. We do not knowingly collect information
+    from children under 13.
+  </p>
+
+  <h2>8. Changes to This Policy</h2>
+  <p>
+    We may update this policy from time to time. The &ldquo;Last updated&rdquo; date at the top
+    of this page will reflect any changes.
+  </p>
+
+  <h2>9. Contact</h2>
+  <p>
+    If you have questions about this Privacy Policy, please open an issue on our
+    <a href="https://github.com/Kabir08/Fundora" target="_blank" rel="noopener">GitHub repository</a>.
+  </p>
+
+  <footer>Fundora Scholarship Matcher &mdash; <a href="/">API Docs</a></footer>
+</body>
+</html>
+"""
