@@ -3,7 +3,7 @@ services:
     name: fundora-api
     runtime: python
     buildCommand: pip install -r requirements.txt && PLAYWRIGHT_BROWSERS_PATH=/opt/render/.cache/ms-playwright python -m playwright install chromium --with-deps
-    startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn api:app --host 0.0.0.0 --port 8000
     envVars:
       - key: PYTHONUNBUFFERED
         value: "1"
