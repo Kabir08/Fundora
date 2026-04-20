@@ -1,0 +1,158 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Scholarship Matcher",
+    "description": "Semantic scholarship search — returns ranked scholarship links matching a user's academic profile.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://YOUR_DEPLOYED_URL"
+    }
+  ],
+  "paths": {
+    "/match": {
+      "post": {
+        "operationId": "matchScholarships",
+        "summary": "Find scholarships that match a user's profile",
+        "description": "Accepts a free-text profile description and returns the most relevant scholarships from a pre-indexed database covering DAAD, GyanDhan, Chevening, UCL, Commonwealth, and more.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MatchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "List of matching scholarships",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MatchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "503": {
+            "description": "Index still building — retry in a minute"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "healthCheck",
+        "summary": "Check if the service is running",
+        "responses": {
+          "200": {
+            "description": "Service health status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "index_ready": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/index_status": {
+      "get": {
+        "operationId": "indexStatus",
+        "summary": "Get index build status and item count",
+        "responses": {
+          "200": {
+            "description": "Index status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndexStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MatchRequest": {
+        "type": "object",
+        "required": ["profile"],
+        "properties": {
+          "profile": {
+            "type": "string",
+            "description": "The user's academic background, field of study, nationality, degree level, and any other relevant information.",
+            "example": "I am a Nigerian student with a Bachelor's in Computer Science seeking a fully funded Master's in the UK or Germany."
+          },
+          "top_k": {
+            "type": "integer",
+            "description": "Number of scholarships to return (1-50, default 10).",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      },
+      "ScholarshipResult": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Scholarship name or programme title."
+          },
+          "link": {
+            "type": "string",
+            "description": "Direct URL to the scholarship page."
+          },
+          "description": {
+            "type": "string",
+            "description": "Short description or eligibility snippet."
+          },
+          "source": {
+            "type": "string",
+            "description": "Website the scholarship was sourced from (e.g. DAAD, GyanDhan)."
+          }
+        }
+      },
+      "MatchResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ScholarshipResult" }
+          },
+          "total_indexed": {
+            "type": "integer",
+            "description": "Total number of scholarships in the index."
+          },
+          "index_ready": {
+            "type": "boolean"
+          }
+        }
+      },
+      "IndexStatus": {
+        "type": "object",
+        "properties": {
+          "ready": { "type": "boolean" },
+          "total_items": { "type": "integer" },
+          "error": { "type": "string", "nullable": true },
+          "build_started_at": { "type": "number", "nullable": true }
+        }
+      }
+    }
+  }
+}
