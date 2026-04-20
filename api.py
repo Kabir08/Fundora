@@ -5,11 +5,13 @@ a /match endpoint that ChatGPT calls with a user's profile text.
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import pickle
 import threading
 import time
 from collections import Counter
+from contextlib import asynccontextmanager
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
@@ -291,24 +293,28 @@ def load_or_build():
 # FastAPI app
 # ---------------------------------------------------------------------------
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Server is bound and ready — now start background work
+    loop = asyncio.get_event_loop()
+    t = threading.Thread(target=load_or_build, daemon=True)
+    t.start()
+    yield
+
+
 app = FastAPI(
     title="Scholarship Matcher",
     description="Semantic scholarship search for ChatGPT Actions",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://chat.openai.com", "https://chatgpt.com"],
+    allow_origins=["*"],  # ChatGPT Actions require permissive CORS
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
-
-# Start background index build at startup
-@app.on_event("startup")
-def startup_event():
-    t = threading.Thread(target=load_or_build, daemon=True)
-    t.start()
 
 
 # ---------------------------------------------------------------------------
