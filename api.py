@@ -17,12 +17,12 @@ from contextlib import asynccontextmanager
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
+import httpx
 import numpy as np
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from playwright.sync_api import sync_playwright
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 
@@ -33,21 +33,31 @@ from sentence_transformers import SentenceTransformer
 CHROMA_DIR = "./chroma_db"
 COLLECTION_NAME = "scholarships"
 META_FILE = "./chroma_db/meta.json"
+SEED_FILE = "./scholarships_seed.json"
 SCRAPE_TTL_DAYS = 7          # Re-scrape only if index is older than this
 ENCODE_BATCH_SIZE = 64       # Encode in batches to cap peak RAM
 MAX_PAGES_PER_SITE = 4
-PAGE_DELAY_SECONDS = 1.0
+PAGE_DELAY_SECONDS = 0.5
 DEFAULT_TOP_K = 10
+
+_HTTP_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.5",
+    "Accept-Encoding": "gzip, deflate, br",
+}
 
 # (name, url_template, paginated)
 # For paginated sites use {page} placeholder; page numbering starts at 1.
 PRESET_SITES: list[tuple[str, str, bool]] = [
     # ── Global aggregators ────────────────────────────────────────────────
-    ("OpportunityDesk",      "https://opportunitydesk.org/category/scholarships/page/{page}/", True),
+    ("OpportunityDesk",      "https://opportunitydesk.org/scholarships/page/{page}/", True),
     ("Scholars4Dev",         "https://www.scholars4dev.com/category/scholarships/page/{page}/", True),
     ("ScholarshipPortal",    "https://www.scholarshipportal.com/scholarships/?page={page}", True),
     ("FindAPhD",             "https://www.findaphd.com/phds/", False),
-    ("ScholarshipsForDev",   "https://scholarshipsfordevelopment.org/scholarships/page/{page}/", True),
     ("InternationalScholarships", "https://www.internationalscholarships.com/", False),
     ("CareerFoundry",        "https://careerfoundry.com/en/blog/career-change/scholarships/", False),
 
@@ -153,13 +163,14 @@ def _collect_sibling_content(heading_tag) -> tuple[str, str]:
 
 
 def _fetch_html(url: str) -> str:
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        pg = browser.new_page()
-        pg.goto(url, wait_until="networkidle", timeout=30000)
-        html = pg.content()
-        browser.close()
-    return html
+    with httpx.Client(
+        headers=_HTTP_HEADERS,
+        follow_redirects=True,
+        timeout=20.0,
+    ) as client:
+        resp = client.get(url)
+        resp.raise_for_status()
+        return resp.text
 
 
 def scrape_items(url: str) -> list[dict]:
@@ -376,24 +387,49 @@ def _scrape_all() -> list[dict]:
     return all_items
 
 
+def _load_from_seed() -> bool:
+    """Load pre-scraped scholarships from seed JSON into ChromaDB. Returns True on success."""
+    if not os.path.exists(SEED_FILE):
+        return False
+    try:
+        with open(SEED_FILE) as f:
+            items = json.load(f)
+        if not items:
+            return False
+        print(f"[index] Loading {len(items)} scholarships from seed file…")
+        _rebuild_collection()
+        _store_to_chroma(items)
+        print("[index] Seed loaded successfully.")
+        return True
+    except Exception as exc:
+        print(f"[index] Seed load failed: {exc}")
+        return False
+
+
 def load_or_build():
     global _model, _index_error, _build_started_at
     _build_started_at = time.time()
     try:
         _init_chroma()
 
-        if _collection_is_fresh():
-            count = _chroma_collection.count()
-            print(f"[index] ChromaDB is fresh ({count} items). Skipping scrape.")
-            if _model is None:
-                _model = SentenceTransformer("all-MiniLM-L6-v2")
-            _index_ready.set()
-            return
-
+        # Load model first — needed by both seed path and live-scrape path
         if _model is None:
             _model = SentenceTransformer("all-MiniLM-L6-v2")
 
-        print("[index] Scraping scholarship sites…")
+        # Fast path: ChromaDB already has fresh data from a previous run
+        if _collection_is_fresh():
+            count = _chroma_collection.count()
+            print(f"[index] ChromaDB is fresh ({count} items). Skipping scrape.")
+            _index_ready.set()
+            return
+
+        # Fast path: load from committed seed JSON (ready in ~10s on cold start)
+        if _load_from_seed():
+            _index_ready.set()
+            return
+
+        # Slow path: live scrape with httpx (no Playwright required)
+        print("[index] No seed file found — scraping scholarship sites with httpx…")
         items = _scrape_all()
 
         with _index_lock:

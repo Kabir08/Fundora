@@ -1,0 +1,560 @@
+[
+  {
+    "title": "Chevening Scholarship",
+    "link": "https://www.chevening.org/scholarships/",
+    "source": "Chevening",
+    "description": "Chevening Scholarships are the UK government's global scholarship programme, funded by the FCDO. Fully-funded one-year master's degree at any UK university. Open to outstanding emerging leaders from 160+ countries. Covers tuition, living costs, flights, and visa fees. Requires 2+ years work experience."
+  },
+  {
+    "title": "Gates Cambridge Scholarship",
+    "link": "https://www.gatescambridge.org/apply/",
+    "source": "GatesCambridge",
+    "description": "Gates Cambridge Scholarships fund outstanding graduate students from outside the UK to study at the University of Cambridge. Covers full cost of studying at Cambridge: University Composition Fee, maintenance allowance, one economy airfare, and discretionary funding. Open to any subject."
+  },
+  {
+    "title": "Rhodes Scholarship",
+    "link": "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/",
+    "source": "RhodesScholarship",
+    "description": "The Rhodes Scholarship is the oldest and most prestigious international scholarship programme, enabling exceptional students from around the world to study at the University of Oxford. Covers university fees, living stipend, and travel. Open to students from 64 countries."
+  },
+  {
+    "title": "Commonwealth Scholarship \u2013 Masters and PhD",
+    "link": "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/",
+    "source": "Commonwealth",
+    "description": "Commonwealth Scholarships enable talented and motivated individuals from low and middle income Commonwealth countries to gain the knowledge and skills required for sustainable development. Covers tuition, airfare, living allowance, thesis grant for UK universities."
+  },
+  {
+    "title": "DAAD Scholarship for International Students",
+    "link": "https://www.daad.de/en/study-and-research-in-germany/scholarships/",
+    "source": "DAAD",
+    "description": "DAAD (German Academic Exchange Service) offers scholarships for international students and researchers to study or conduct research in Germany. Covers living expenses, travel, and study fees. Available at all German universities for bachelors, masters, and PhD levels."
+  },
+  {
+    "title": "Heinrich B\u00f6ll Foundation Scholarships",
+    "link": "https://www.boell.de/en/stipendien",
+    "source": "HeinrichBoell",
+    "description": "The Heinrich B\u00f6ll Foundation offers scholarships to around 1,200 undergraduate, graduate, and doctoral students per year in Germany. Open to international students who demonstrate outstanding academic performance and social and political commitment."
+  },
+  {
+    "title": "Erasmus Mundus Joint Master Degrees",
+    "link": "https://erasmus-plus.ec.europa.eu/opportunities/opportunities-for-individuals/students/erasmus-mundus-joint-masters",
+    "source": "ErasmusPlus",
+    "description": "Erasmus Mundus Joint Masters are prestigious, integrated international study programmes at master's level, jointly delivered by international consortia. Scholarships cover tuition fees, travel, visa, insurance and living costs in multiple European countries."
+  },
+  {
+    "title": "Fulbright Foreign Student Scholarship",
+    "link": "https://foreign.fulbrightonline.org/about/foreign-fulbright",
+    "source": "Fulbright",
+    "description": "The Fulbright Foreign Student Program enables graduate students, young professionals, and artists from abroad to study and conduct research in the United States. Fully funded including tuition, living expenses, health insurance, and airfare. Strong focus on STEM, social sciences, arts."
+  },
+  {
+    "title": "UCL Graduate Scholarships",
+    "link": "https://www.ucl.ac.uk/scholarships/scholarships-students-outside-uk",
+    "source": "UCL",
+    "description": "UCL offers a range of graduate scholarships for students from outside the UK, including the UCL Global Masters Scholarship and subject-specific awards. Covers partial to full tuition fees for masters and PhD programmes in Computer Science, Engineering, and other fields."
+  },
+  {
+    "title": "University of Edinburgh Global Research Scholarships",
+    "link": "https://www.ed.ac.uk/student-funding/postgraduate/international/global/research",
+    "source": "Edinburgh",
+    "description": "The University of Edinburgh offers competitive scholarships for outstanding international students pursuing PhD research. Covers tuition fees and living costs. Open to all subjects including Computer Science, AI, and Engineering."
+  },
+  {
+    "title": "Oxford University Clarendon Scholarship",
+    "link": "https://www.ox.ac.uk/clarendon",
+    "source": "GatesOxford",
+    "description": "The Clarendon Scholarship is one of Oxford's most prestigious scholarships, covering full fees and living costs for graduate study. Awarded on the basis of outstanding academic achievement and potential. Open to all nationalities and all subjects."
+  },
+  {
+    "title": "EURAXESS \u2013 EU Researcher Mobility Scholarships",
+    "link": "https://euraxess.ec.europa.eu/",
+    "source": "EURAXESS",
+    "description": "EURAXESS provides information on funding opportunities, job openings, and support services for researchers moving to or within Europe. Aggregates hundreds of PhD and postdoc fellowships from EU member states."
+  },
+  {
+    "title": "Marie Sk\u0142odowska-Curie Actions (MSCA) Fellowship",
+    "link": "https://marie-sklodowska-curie-actions.ec.europa.eu/",
+    "source": "EURAXESS",
+    "description": "Marie Sk\u0142odowska-Curie Actions provide grants for all stages of researchers' careers and encourage transnational, intersectoral and interdisciplinary mobility. Fully funded with generous living and mobility allowance. Strong focus on STEM and innovation."
+  },
+  {
+    "title": "ETH Zurich Excellence Scholarship",
+    "link": "https://ethz.ch/en/studies/financial/scholarships/excellencescholarship.html",
+    "source": "ETHZurich",
+    "description": "The ETH Zurich Excellence Scholarship is a merit-based scholarship for exceptional students from around the world who are planning to pursue a master's degree at ETH Zurich. Covers full tuition fees and a monthly living allowance of CHF 11,000 per semester."
+  },
+  {
+    "title": "Swiss Government Excellence Scholarships",
+    "link": "https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants/swiss-government-excellence-scholarships.html",
+    "source": "Switzerland",
+    "description": "The Swiss Government Excellence Scholarships are open to young researchers from over 180 countries for postgraduate, research or arts studies in Switzerland. Covers tuition, living allowance, housing supplement, health insurance, and travel."
+  },
+  {
+    "title": "NSF Graduate Research Fellowship (GRFP)",
+    "link": "https://www.nsfgrfp.org/",
+    "source": "NSF",
+    "description": "The NSF Graduate Research Fellowship Program recognizes and supports outstanding graduate students in NSF-supported science, technology, engineering, and mathematics disciplines. Provides a 3-year annual stipend of $37,000 and $16,000 cost of education allowance. Open to US citizens pursuing research-based masters/PhD."
+  },
+  {
+    "title": "Google PhD Fellowship",
+    "link": "https://research.google/outreach/phd-fellowship/",
+    "source": "Google",
+    "description": "Google PhD Fellowships are awarded to graduate students doing exceptional and innovative research in areas relevant to computer science and related fields, including Machine Learning, AI, Systems, Theory, and more. Covers full tuition, a generous stipend, and mentorship from Google researchers."
+  },
+  {
+    "title": "Microsoft Research PhD Fellowship",
+    "link": "https://www.microsoft.com/en-us/research/academic-program/phd-fellowship/",
+    "source": "Microsoft",
+    "description": "The Microsoft Research PhD Fellowship provides support to exceptional PhD students whose research is relevant to Microsoft's mission in Computer Science, AI, and related fields. Covers tuition and fees, stipend, and opportunities for internship at Microsoft Research."
+  },
+  {
+    "title": "NVIDIA Graduate Fellowship",
+    "link": "https://research.nvidia.com/graduate-fellowships",
+    "source": "NVIDIA",
+    "description": "NVIDIA Graduate Fellowships support PhD students pursuing research in computer science, computer engineering, system architecture, and related fields. Recipients receive a fellowship award plus GPU hardware. Strong focus on GPU computing, deep learning, computer vision."
+  },
+  {
+    "title": "IBM PhD Fellowship",
+    "link": "https://research.ibm.com/university/awards/fellowships.html",
+    "source": "IBM",
+    "description": "IBM PhD Fellowship Awards are an intensely competitive worldwide program which honors exceptional PhD students in pioneering research in technical areas of mutual interest to the student and IBM. Covers full tuition, stipend, and access to IBM internships."
+  },
+  {
+    "title": "Adobe Research Fellowship",
+    "link": "https://research.adobe.com/fellowship/",
+    "source": "Adobe",
+    "description": "Adobe Research fellowships are awarded to outstanding PhD students in computer science and related disciplines. Provides funding, mentorship, and a paid internship at Adobe Research. Focus areas include AI, machine learning, computer vision, NLP."
+  },
+  {
+    "title": "OpenAI Residency Program",
+    "link": "https://openai.com/careers/",
+    "source": "OpenAI",
+    "description": "OpenAI's research program provides opportunities for researchers and engineers passionate about AI safety and capabilities research. Residency provides mentorship from leading AI researchers and the opportunity to publish top-tier research."
+  },
+  {
+    "title": "Hertz Fellowship",
+    "link": "https://www.hertzfoundation.org/the-fellowship/",
+    "source": "Hertz",
+    "description": "The Hertz Fellowship is one of the most exclusive and sought-after graduate fellowships in science and engineering in the US. Provides $38,000 annual stipend plus full tuition support for up to 5 years of PhD study. Open to US citizens in applied physical, biological, and engineering sciences."
+  },
+  {
+    "title": "Ford Foundation Predoctoral Fellowship",
+    "link": "https://nap.nationalacademies.org/fdp/",
+    "source": "FordFoundation",
+    "description": "Ford Foundation Fellowships provide support for scholars who show promise of future achievement as scholars and teachers in higher education and whose work has the potential to contribute to the diversity of the faculty through STEM and social science disciplines. Provides 3 years of support."
+  },
+  {
+    "title": "AAUW International Fellowships",
+    "link": "https://www.aauw.org/resources/programs/fellowships-grants/current-opportunities/international/",
+    "source": "AAUW",
+    "description": "AAUW International Fellowships are awarded for full-time study or research in the United States to women who are not US citizens or permanent residents. Awards are made for one year of study at any accredited US institution. Open to all fields of study."
+  },
+  {
+    "title": "Vanier Canada Graduate Scholarship",
+    "link": "https://vanier.gc.ca/en/home-accueil.html",
+    "source": "VanierScholarship",
+    "description": "The Vanier Canada Graduate Scholarships program is designed to attract and retain world-class doctoral students by supporting students who demonstrate both leadership skills and a high standard of scholarly achievement. Valued at $50,000 per year for 3 years. Open to Canadian and international students at Canadian universities."
+  },
+  {
+    "title": "Pierre Elliott Trudeau Foundation Doctoral Scholarship",
+    "link": "https://www.trudeaufoundation.ca/programs/phd-scholarships",
+    "source": "TrudeauFoundation",
+    "description": "The Pierre Elliott Trudeau Foundation supports exceptional doctoral students whose research touches on one of the Foundation's focus areas: human rights and dignity, responsible citizenship, Canada and the world, and people and their natural environment."
+  },
+  {
+    "title": "NSERC Postgraduate Scholarship",
+    "link": "https://www.nserc-crsng.gc.ca/students-etudiants/pg-cs/index_eng.asp",
+    "source": "NSERC",
+    "description": "NSERC Postgraduate Scholarships support the most promising research-oriented graduate students in natural sciences and engineering. Open to Canadian citizens. Provides $17,500 per year for masters and $21,000 per year for PhD students at Canadian universities."
+  },
+  {
+    "title": "Australia Awards Scholarships",
+    "link": "https://www.australiaawards.gov.au/",
+    "source": "AustraliaAwards",
+    "description": "Australia Awards Scholarships are prestigious international scholarships funded by the Australian Government Department of Foreign Affairs. They provide opportunities for people from developing countries to undertake full-time undergraduate or postgraduate study at participating Australian universities."
+  },
+  {
+    "title": "University of Melbourne Graduate Research Scholarship",
+    "link": "https://scholarships.unimelb.edu.au/awards/graduate-research-scholarships",
+    "source": "MelbourneUni",
+    "description": "University of Melbourne Graduate Research Scholarships cover tuition fees, provide a living allowance and relocation grants for outstanding domestic and international students undertaking a master's by research or a doctoral degree. Open to all research fields."
+  },
+  {
+    "title": "ANU Chancellor's International Scholarship",
+    "link": "https://www.anu.edu.au/study/scholarships/find-a-scholarship/anu-chancellors-international-scholarship",
+    "source": "ANUScholarships",
+    "description": "The ANU Chancellor's International Scholarship awards a 25% reduction of tuition fees to high-achieving international students commencing undergraduate or postgraduate coursework studies at the Australian National University."
+  },
+  {
+    "title": "Endeavour Leadership Program",
+    "link": "https://www.education.gov.au/endeavour-leadership-program",
+    "source": "AustraliaAwards",
+    "description": "The Endeavour Leadership Program provides merit-based, fully-funded scholarships for citizens of Asia-Pacific, South and Central Asian, Middle East, European and Americas countries to undertake study, research, and professional development in Australia."
+  },
+  {
+    "title": "MEXT Japanese Government Scholarship",
+    "link": "https://www.mext.go.jp/en/policy/education/highered/title02/detail02/sdetail02/1373897.htm",
+    "source": "MEXT-Japan",
+    "description": "The Japanese Government (Monbukagakusho: MEXT) Scholarship provides support for international students to study at Japanese universities as undergraduate students, research students, or students in teacher training and technical college programs. Covers tuition, monthly stipend, travel."
+  },
+  {
+    "title": "JASSO Scholarship for International Students",
+    "link": "https://www.jasso.or.jp/en/study_j/scholarship/",
+    "source": "JASSO-Japan",
+    "description": "Japan Student Services Organization (JASSO) provides scholarships to international students studying in Japan. Scholarship for privately financed international students provides monthly stipend. Also administers various other government scholarship programs."
+  },
+  {
+    "title": "Korean Government Scholarship Program (GKS/KGSP)",
+    "link": "https://www.studyinkorea.go.kr/en/sub/gks/allnew_invite.do",
+    "source": "GKS-Korea",
+    "description": "The Korean Government Scholarship Program (GKS), also known as KGSP, provides international students with opportunities to conduct advanced studies in undergraduate and graduate programs at higher educational institutions in Korea. Covers tuition, living expenses, Korean language training, and airfare."
+  },
+  {
+    "title": "Chinese Government Scholarship (CSC)",
+    "link": "https://www.campuschina.org/scholarships/index.html",
+    "source": "CSC-China",
+    "description": "Chinese Government Scholarships are set up by the Ministry of Education of China to sponsor international students to study in China. Covers tuition fees, accommodation, living allowance, and comprehensive medical insurance for undergraduate, masters, and doctoral programs."
+  },
+  {
+    "title": "ASEAN Undergraduate Scholarship (Singapore)",
+    "link": "https://www.moe.gov.sg/financial-matters/scholarships/asean",
+    "source": "ASEAN-Scholarships",
+    "description": "The ASEAN Scholarships are for ASEAN nationals (excluding Singapore) to study in Singapore government schools and junior colleges. Covers accommodation, living allowance, school fees, and settlement allowance."
+  },
+  {
+    "title": "IIT Scholarship for International Students",
+    "link": "https://www.iitb.ac.in/en/education/financial-assistance",
+    "source": "IIT",
+    "description": "IITs offer Teaching Assistantship and Research Assistantship fellowships for Masters and PhD students. International students can apply for ICCR and bilateral scholarships. Monthly stipend for PhD students covers living expenses."
+  },
+  {
+    "title": "AfterSchoolAfrica Scholarship Database",
+    "link": "https://afterschoolafrica.com/scholarships/",
+    "source": "AfterSchoolAfrica",
+    "description": "AfterSchoolAfrica is Africa's most comprehensive database of scholarships, fellowships, and career opportunities for African students. Lists hundreds of opportunities including fully funded undergraduate, masters, and PhD scholarships at top international universities."
+  },
+  {
+    "title": "Mastercard Foundation Scholarship",
+    "link": "https://mastercardfoundation.org/programs/scholars-program",
+    "source": "MasterCard-Foundation",
+    "description": "The Mastercard Foundation Scholars Program provides young Africans with access to quality education and the leadership skills needed to transform their communities. Partners with leading African and international universities to provide fully funded scholarships."
+  },
+  {
+    "title": "African Union Scholarships",
+    "link": "https://au.int/en/scholarships",
+    "source": "AfricanUnion",
+    "description": "The African Union Commission awards scholarships to African scholars for graduate and post-graduate studies at universities both within and outside Africa. Programs include the African Union Commission Academic Mobility Scheme and country-specific bilateral scholarships."
+  },
+  {
+    "title": "World Bank Graduate Scholarship Program (JJ/WBGSP)",
+    "link": "https://www.worldbank.org/en/programs/scholarships",
+    "source": "WorldBankYPP",
+    "description": "The World Bank Graduate Scholarship Program offers scholarships to promising students from developing countries for full-time study in development-related fields at accredited universities around the world. Covers tuition, a monthly living allowance, round-trip airfare, health insurance, and travel allowance."
+  },
+  {
+    "title": "ADB-Japan Scholarship Program",
+    "link": "https://www.adb.org/work-with-us/careers/scholarships",
+    "source": "ADBScholarship",
+    "description": "The ADB\u2013Japan Scholarship Program (ADB-JSP) offers post-graduate scholarships to citizens of ADB's developing member countries who are accepted for admission at participating academic institutions in the Asia-Pacific region."
+  },
+  {
+    "title": "Aga Khan Foundation International Scholarship",
+    "link": "https://www.akdn.org/our-agencies/aga-khan-foundation/international-scholarship-programme",
+    "source": "AgaKhan",
+    "description": "The Aga Khan Foundation International Scholarship Programme provides a limited number of scholarships each year for postgraduate studies to outstanding students from developing countries who have no other means of financing their education. Loans and grants for masters and PhD degrees."
+  },
+  {
+    "title": "Rotary Peace Fellowship",
+    "link": "https://www.rotary.org/en/our-programs/peace-fellowships",
+    "source": "RotaryFoundation",
+    "description": "Rotary Peace Fellowships enable educators, police and military officers, government officials, and other professionals to pursue graduate studies in peace and conflict resolution. Fully funded master's degree at one of Rotary's peace centres worldwide."
+  },
+  {
+    "title": "UN Scholarships and Fellowships",
+    "link": "https://www.un.org/en/academic-impact/page/scholarship-opportunities",
+    "source": "UNScholarships",
+    "description": "The United Nations offers various scholarship, internship, and fellowship opportunities for students and young professionals from Member States. Includes the UN Graduate Study Programme and subject-specific fellowships in international law, human rights, and development."
+  },
+  {
+    "title": "ICCR Scholarship for International Students",
+    "link": "https://www.iccr.gov.in/content/iccr-scholarships",
+    "source": "ICCR",
+    "description": "The Indian Council for Cultural Relations (ICCR) offers scholarships to students from friendly foreign countries to study in India. Covers tuition fees, hostel accommodation, monthly stipend, and medical facilities. Available for undergraduate, postgraduate, and PhD programs."
+  },
+  {
+    "title": "INSPIRE Scholarship (India)",
+    "link": "https://www.inspire-dst.gov.in/",
+    "source": "DST-India",
+    "description": "Innovation in Science Pursuit for Inspired Research (INSPIRE) is a scholarship program managed by Department of Science & Technology, Government of India. Provides scholarships to students in science and technology to attract talent to research careers."
+  },
+  {
+    "title": "Prime Minister's Research Fellowship (PMRF)",
+    "link": "https://www.pmrf.in/",
+    "source": "PMRF-India",
+    "description": "Prime Minister's Research Fellowship enables meritorious students to take admission directly in PhD programme in IITs, IISc and other premier institutions. Provides a monthly fellowship of Rs. 70,000-80,000 for 5 years plus research grant. For Indian students from IITs/NITs/IIITs."
+  },
+  {
+    "title": "GyanDhan Scholarship Finder",
+    "link": "https://www.gyandhan.com/scholarships",
+    "source": "GyanDhan",
+    "description": "GyanDhan is India's premier scholarship search and education financing platform. Lists hundreds of scholarships specifically for Indian students studying in India and abroad, including scholarships for engineering, technology, MBA, and research programs."
+  },
+  {
+    "title": "National Overseas Scholarship (India)",
+    "link": "https://nosmsje.gov.in/",
+    "source": "NOS-India",
+    "description": "The National Overseas Scholarship scheme provides financial assistance to eligible candidates for pursuing master's level education and PhD studies abroad. Open to students belonging to SC, ST, and landless agricultural labourers/traditional artisan categories."
+  },
+  {
+    "title": "Inlaks Shivdasani Foundation Scholarships",
+    "link": "https://www.inlaksfoundation.org/scholarships/",
+    "source": "Inlaks",
+    "description": "The Inlaks Shivdasani Foundation offers highly competitive scholarships to exceptional young Indians to study at top universities abroad. Covers full expenses for master's and PhD programs in the US, UK, and Europe including tuition, living expenses, and travel."
+  },
+  {
+    "title": "Narotam Sekhsaria Foundation Scholarship",
+    "link": "https://pg.nsfoundation.co.in/",
+    "source": "NSF-India",
+    "description": "Narotam Sekhsaria Foundation Scholarship Programme aims to support meritorious Indian students for higher education at top universities abroad. Provides a collateral-free education loan at a low interest rate of 3.5% for students admitted to top universities."
+  },
+  {
+    "title": "S.N. Bose Scholars Program",
+    "link": "https://www.iusstf.org/program/s-n-bose-scholars-program",
+    "source": "IUSSTF",
+    "description": "The S.N. Bose Scholars Program supports graduate students from India to conduct collaborative research at premier US institutions during summer months. Funded by Indo-US Science and Technology Forum. Focus areas include Chemical Sciences, Earth and Atmospheric Sciences, Engineering, and more."
+  },
+  {
+    "title": "OpenAI Scholars Program",
+    "link": "https://openai.com/scholars",
+    "source": "OpenAI",
+    "description": "OpenAI Scholars provides funding and mentorship to individuals from underrepresented groups who are studying deep learning from anywhere in the world. Recipients receive a stipend for 3 months and mentorship from an OpenAI researcher to work on a self-directed project."
+  },
+  {
+    "title": "DeepMind Scholarship",
+    "link": "https://www.deepmind.com/scholarships",
+    "source": "DeepMind",
+    "description": "DeepMind Scholarships support the next generation of AI researchers and engineers from underrepresented backgrounds studying machine learning, computer science, and related fields. Covers tuition and provides a living stipend at partner universities."
+  },
+  {
+    "title": "Meta AI Research Fellowship",
+    "link": "https://research.facebook.com/fellowship/",
+    "source": "Meta",
+    "description": "The Meta Research PhD Fellowship program was established to encourage and support promising doctoral students who are doing innovative and relevant research in areas broadly related to computer science and engineering. Covers tuition and provides a competitive stipend."
+  },
+  {
+    "title": "Amazon Graduate Research Fellowship",
+    "link": "https://www.amazon.science/research-awards/graduate-research-fellowship",
+    "source": "Amazon",
+    "description": "Amazon Graduate Research Fellowship is a competitive award for current PhD students pursuing research in areas aligned with Amazon Science. Provides a fellowship award and opportunities to intern with Amazon researchers in areas like ML, NLP, computer vision, robotics."
+  },
+  {
+    "title": "Apple Scholars in AI/ML Fellowship",
+    "link": "https://machinelearning.apple.com/research/fellowship",
+    "source": "Apple",
+    "description": "Apple Scholars in AI/ML is a new program to recognize and support graduate students doing innovative research in Artificial Intelligence and Machine Learning at PhD-granting universities. Provides a fellowship award, internship opportunities, and mentorship from Apple researchers."
+  },
+  {
+    "title": "Jane Street Graduate Research Fellowship",
+    "link": "https://www.janestreet.com/fellowships/",
+    "source": "JaneStreet",
+    "description": "The Jane Street Graduate Research Fellowship provides fellowships to exceptional PhD students pursuing research in mathematics, computer science, and related fields. Covers full tuition and provides a generous living stipend, with opportunity to connect with Jane Street researchers."
+  },
+  {
+    "title": "Two Sigma PhD Fellowship",
+    "link": "https://www.twosigma.com/community/academic-partnerships/",
+    "source": "TwoSigma",
+    "description": "Two Sigma PhD Fellowship supports exceptional PhD students in computer science, mathematics, statistics, and related quantitative fields. Provides tuition, stipend, and mentorship. Focus areas include machine learning, data science, and quantitative research."
+  },
+  {
+    "title": "Scholars4Dev International Scholarships",
+    "link": "https://www.scholars4dev.com/",
+    "source": "Scholars4Dev",
+    "description": "Scholars4Dev is an online scholarship information network for students from developing countries. Lists over 1,000 fully-funded scholarships for undergraduate, masters, PhD, short courses, fellowships, and grants for students from Africa, Asia, Latin America, and more."
+  },
+  {
+    "title": "Opportunity Desk \u2013 International Opportunities",
+    "link": "https://opportunitydesk.org/",
+    "source": "OpportunityDesk",
+    "description": "Opportunity Desk is a resource for scholarships, fellowships, internships, grants, competitions, and other opportunities for young people worldwide. Curates daily opportunities from top organisations globally."
+  },
+  {
+    "title": "FindAPhD \u2013 PhD Scholarships",
+    "link": "https://www.findaphd.com/phds/",
+    "source": "FindAPhD",
+    "description": "FindAPhD lists thousands of PhD research projects and funded studentships across UK, Europe, and worldwide institutions. Search by subject, funding type, and location. Includes fully-funded PhD scholarships in Computer Science, Engineering, Natural Sciences, and more."
+  },
+  {
+    "title": "InternationalScholarships.com",
+    "link": "https://www.internationalscholarships.com/",
+    "source": "InternationalScholarships",
+    "description": "InternationalScholarships.com is a comprehensive database of scholarships for international students studying abroad. Covers undergraduate, graduate, and postdoctoral level scholarships from universities and private foundations worldwide."
+  },
+  {
+    "title": "Niche $2,000 No Essay Scholarship",
+    "link": "https://www.niche.com/colleges/scholarships/no-essay/",
+    "source": "Niche",
+    "description": "Niche offers monthly scholarships including a $2,000 no-essay scholarship that any college or high school student can apply to. Niche also lists thousands of merit-based scholarships searchable by grade, GPA, location, school, and demographics."
+  },
+  {
+    "title": "Bold.org Scholarship Platform",
+    "link": "https://bold.org/scholarships/",
+    "source": "BoldOrg",
+    "description": "Bold.org is a scholarship platform connecting students with merit-based, need-based, and identity-based scholarships. Lists hundreds of scholarships for undergraduate and graduate students in all majors including computer science, engineering, business, and more."
+  },
+  {
+    "title": "Going Merry Scholarship Platform",
+    "link": "https://www.goingmerry.com/resources/scholarships/",
+    "source": "GoingMerry",
+    "description": "Going Merry is a scholarship search platform connecting students with thousands of scholarships. Includes institutional scholarships, private scholarships, and niche awards for undergraduate and graduate students."
+  },
+  {
+    "title": "ScholarshipPortal \u2013 European Scholarships",
+    "link": "https://www.scholarshipportal.com/scholarships/",
+    "source": "ScholarshipPortal",
+    "description": "ScholarshipPortal is Europe's largest scholarship database with 1,500+ scholarships at European universities. Includes Erasmus, country-specific government scholarships, university scholarships, and private foundation scholarships for international students."
+  },
+  {
+    "title": "Qualcomm Innovation Fellowship",
+    "link": "https://www.qualcomm.com/research/university-relations/innovation-fellowship",
+    "source": "Qualcomm",
+    "description": "The Qualcomm Innovation Fellowship sponsors PhD students doing innovative research in areas related to Qualcomm's interests including 5G, AI, machine learning, computer vision, computer architecture, and security. Provides cash award and mentorship from Qualcomm engineers."
+  },
+  {
+    "title": "Snap Research Fellowship",
+    "link": "https://research.snap.com/fellowships.html",
+    "source": "Snap",
+    "description": "The Snap Research Fellowship recognizes and supports exceptional PhD students who are conducting research in areas relevant to Snap's work, including computer vision, AR/VR, NLP, and machine learning. Provides a fellowship award and internship opportunity."
+  },
+  {
+    "title": "Simons Foundation Graduate Fellowship",
+    "link": "https://www.simonsfoundation.org/",
+    "source": "SimonsFoundation",
+    "description": "The Simons Foundation supports research in mathematics and the basic sciences. Simons Graduate Fellowships support exceptional PhD students in mathematics, theoretical computer science, and theoretical physics."
+  },
+  {
+    "title": "DARPA Riser Award",
+    "link": "https://www.darpa.mil/work-with-us/for-universities",
+    "source": "DARPA",
+    "description": "DARPA funds breakthrough research at universities including through Young Faculty Awards and fellowship programs. Supports early-stage research in AI, robotics, cyber security, quantum computing, and other strategic technology areas."
+  },
+  {
+    "title": "ACM-ICPC Scholarship Opportunities",
+    "link": "https://icpc.global/",
+    "source": "ICPC",
+    "description": "Success in ICPC (International Collegiate Programming Contest) opens doors to scholarships and internships at top technology companies. Many universities offer scholarships to competitive programmers, and top companies recruit heavily from ICPC contestants."
+  },
+  {
+    "title": "Siemens Foundation Scholarship",
+    "link": "https://www.siemens-foundation.org/programs/the-siemens-competition-in-math-science-technology/",
+    "source": "Siemens",
+    "description": "Siemens Foundation offers scholarships recognizing individual students and teams conducting scientific research. Focuses on STEM fields including mathematics, computer science, engineering, and natural sciences."
+  },
+  {
+    "title": "AISES (American Indian Science and Engineering) Scholarship",
+    "link": "https://www.aises.org/scholarships",
+    "source": "AISES",
+    "description": "AISES offers scholarships to American Indian, Alaska Native, Native Hawaiian, Pacific Islander, and First Nations students pursuing degrees in STEM fields. Multiple scholarship programs available for undergraduate and graduate students."
+  },
+  {
+    "title": "Society of Women Engineers (SWE) Scholarship",
+    "link": "https://scholarships.swe.org/",
+    "source": "SWE",
+    "description": "SWE scholarships support women pursuing ABET-accredited baccalaureate or graduate programs in preparation for careers in engineering, engineering technology and computer science in the USA. Over $1 million in scholarships awarded annually."
+  },
+  {
+    "title": "NSBE Scholarships (National Society of Black Engineers)",
+    "link": "https://www.nsbe.org/scholarships",
+    "source": "NSBE",
+    "description": "NSBE offers scholarships to Black engineering students pursuing undergraduate and graduate degrees. Corporate partner scholarships cover various STEM fields. Membership in NSBE gives access to additional scholarship databases and career fairs."
+  },
+  {
+    "title": "Hispanic Scholarship Fund (HSF)",
+    "link": "https://www.hsf.net/scholarship",
+    "source": "HSF",
+    "description": "HSF awards scholarships to Hispanic students with strong academic records and community engagement. Awards of $500\u2013$5,000 to high-achieving Hispanic American undergraduate and graduate students pursuing degrees in all fields."
+  },
+  {
+    "title": "Gates Scholarship (US \u2013 minority undergrad)",
+    "link": "https://www.thegatesscholarship.org/scholarship",
+    "source": "Gates",
+    "description": "The Gates Scholarship is a highly selective, full scholarship for exceptional, Pell-eligible, minority high school seniors. Covers full cost of attendance for any accredited four-year US college or university. Open to Black American, American Indian, Alaska Native, Hispanic American students."
+  },
+  {
+    "title": "HCI Fellowships at Stanford d.school",
+    "link": "https://hci.stanford.edu/academics/fellowships.html",
+    "source": "Stanford",
+    "description": "Stanford HCI Group fellowships support PhD students doing research in human-computer interaction, including AI interfaces, accessibility, and VR/AR. Various internal and external fellowships available for current and prospective Stanford PhD students."
+  },
+  {
+    "title": "Carnegie Mellon University Fellowship",
+    "link": "https://www.cmu.edu/graduate/prospective/financialaid/fellowships.html",
+    "source": "CMU",
+    "description": "CMU offers university fellowships and external fellowship support for PhD students across all schools. The School of Computer Science offers Dean's Fellowships and various department-specific fellowships covering full tuition and stipend."
+  },
+  {
+    "title": "MIT Fellowship Programs",
+    "link": "https://oge.mit.edu/finances/fellowships/",
+    "source": "MIT",
+    "description": "MIT Graduate Fellowships provide financial support to graduate students across all departments. Includes the MIT Presidential Fellowship, EECS departmental fellowships, and external fellowships. Supports research in AI, robotics, computer science, and engineering."
+  },
+  {
+    "title": "Berkeley Graduate Fellowship",
+    "link": "https://grad.berkeley.edu/financial-support/fellowships/",
+    "source": "Berkeley",
+    "description": "UC Berkeley offers Graduate Fellowships for incoming and continuing PhD students. Includes the Berkeley Fellowship, Chancellor's Fellowship, and departmental fellowships in EECS, AI, statistics, and engineering fields."
+  },
+  {
+    "title": "Caltech Fellowship in Engineering and Science",
+    "link": "https://www.caltech.edu/campus-life-events/campus-offices/financial-assistance/graduate-financial-support",
+    "source": "Caltech",
+    "description": "Caltech provides full financial support for all PhD students in the form of fellowships and research assistantships. All PhD programs in engineering, computer science, and physical sciences include full tuition waiver and monthly stipend."
+  },
+  {
+    "title": "Schwarzman Scholars",
+    "link": "https://www.schwarzmanscholars.org/",
+    "source": "Schwarzman",
+    "description": "Schwarzman Scholars is a master's degree program at Tsinghua University in Beijing, designed to prepare the next generation of global leaders for a world where China plays a central role. Fully funded one-year master's covering tuition, room and board, travel, and stipend."
+  },
+  {
+    "title": "Knight-Hennessy Scholars (Stanford)",
+    "link": "https://knight-hennessy.stanford.edu/",
+    "source": "Stanford",
+    "description": "Knight-Hennessy Scholars is a graduate-level scholarship program at Stanford University with up to 100 scholars per year from around the world. Provides full funding for graduate study at Stanford in any program. Focus on leadership and community."
+  },
+  {
+    "title": "Paul & Daisy Soros Fellowship for New Americans",
+    "link": "https://www.pdsoros.org/",
+    "source": "PDS",
+    "description": "The Paul & Daisy Soros Fellowships for New Americans program honors the contributions of immigrants and children of immigrants to the US. Provides up to $90,000 of support over two years for graduate study at any US graduate program."
+  },
+  {
+    "title": "Mitchell Scholarship (Ireland)",
+    "link": "https://www.us-irelandalliance.org/mitchell-scholarship",
+    "source": "Mitchell",
+    "description": "The George J. Mitchell Scholarship is a competitive award for American students to pursue graduate study in Ireland and Northern Ireland. Covers tuition, accommodation, and travel. One year of study at an Irish university in any discipline."
+  },
+  {
+    "title": "Marshall Scholarship (UK)",
+    "link": "https://www.marshallscholarship.org/",
+    "source": "Marshall",
+    "description": "Marshall Scholarships finance young Americans of high ability to study for a degree in the United Kingdom. Up to 2 years of study at any UK university in any subject. Covers full tuition, living expenses, airfare, thesis, study travel, and visa costs."
+  },
+  {
+    "title": "Mitacs Globalink Research Award",
+    "link": "https://www.mitacs.ca/en/programs/globalink/globalink-research-award",
+    "source": "Mitacs",
+    "description": "Mitacs Globalink Research Award supports senior Canadian undergraduates, graduate students and postdoctoral fellows to undertake research at one of Mitacs' international partner universities. Provides a $6,000 award for 12-24 week research projects abroad."
+  },
+  {
+    "title": "DAAD RISE (Research Internships in Science and Engineering)",
+    "link": "https://www.daad.de/rise/en/rise-germany/",
+    "source": "DAAD",
+    "description": "DAAD RISE offers undergraduate students from North America, Great Britain, and Ireland the opportunity to complete a summer research internship at a German university or research institution. Provides a monthly stipend, travel subsidy, and health insurance."
+  },
+  {
+    "title": "Viterbi India Program (USC)",
+    "link": "https://viterbiindia.usc.edu/",
+    "source": "USC",
+    "description": "The USC Viterbi India Program provides research opportunities and scholarships for exceptional engineering students from India to study at USC's Viterbi School of Engineering. Supports both undergraduate summer research and graduate programs."
+  }
+]
