@@ -1,18 +1,27 @@
 import io
+from collections import Counter
+from urllib.parse import urljoin, urlparse
+
 import gradio as gr
+import httpx
 import pdfplumber
-from docx import Document
 from bs4 import BeautifulSoup
-from playwright.sync_api import sync_playwright
-from sentence_transformers import SentenceTransformer
-import faiss
+from docx import Document
 
 # ---------------------------------------------------------------------------
-# Model (loaded once at startup)
+# Model — imported from api.py so we share the single loaded instance.
+# api.py populates _model lazily in its background thread; app.py references
+# it through the module so it always sees the latest value.
 # ---------------------------------------------------------------------------
-print("Loading MiniLM model…")
-model = SentenceTransformer('all-MiniLM-L6-v2')
-print("Model ready.")
+import api as _api_module
+
+_HTTP_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+}
 
 
 
@@ -34,15 +43,12 @@ def extract_text_from_file(file_path: str) -> str:
 
 
 def _get_base(url: str) -> str:
-    from urllib.parse import urlparse
     p = urlparse(url)
     return f"{p.scheme}://{p.netloc}"
 
 
 def _abs(href: str, base: str, page_url: str) -> str:
-    from urllib.parse import urljoin
     if href.startswith("//"):
-        from urllib.parse import urlparse
         scheme = urlparse(page_url).scheme
         return f"{scheme}:{href}"
     return urljoin(page_url, href)
@@ -73,17 +79,14 @@ def _collect_sibling_content(heading_tag) -> tuple[str, str]:
 
 def scrape_items(url: str) -> list[dict]:
     """
-    Generic scraper that tries multiple strategies to extract individual items
-    (scholarships, opportunities, programmes) from any page. Returns a list of
-    dicts with keys: title, link, description.
+    Generic scraper using httpx (no browser required).
+    Tries multiple strategies to extract individual items from any page.
     """
     try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
-            pg = browser.new_page()
-            pg.goto(url, wait_until="networkidle", timeout=30000)
-            html = pg.content()
-            browser.close()
+        with httpx.Client(headers=_HTTP_HEADERS, follow_redirects=True, timeout=20.0) as client:
+            resp = client.get(url)
+            resp.raise_for_status()
+            html = resp.text
     except Exception as e:
         return [{"title": url, "link": url, "description": f"[Error: {e}]"}]
 
@@ -188,18 +191,24 @@ def scrape_items(url: str) -> list[dict]:
     return items
 
 
+import numpy as np
+import faiss
+
+
 def retrieve_top_items(user_text: str, items: list[dict], top_k: int = 5) -> list[dict]:
-    """Embed user text and item descriptions, use FAISS to find best matches."""
+    """Embed user text and items using the shared model, rank with FAISS."""
     if not items:
+        return []
+    model = _api_module._model
+    if model is None:
         return []
     texts = [it["description"] for it in items]
     user_emb = model.encode([user_text], convert_to_numpy=True).astype("float32")
     item_embs = model.encode(texts, convert_to_numpy=True, show_progress_bar=False).astype("float32")
-    index = faiss.IndexFlatL2(item_embs.shape[1])
-    index.add(item_embs)
-    distances, indices = index.search(user_emb, min(top_k, len(items)))
-    # Deduplicate by link
-    seen_links = set()
+    idx = faiss.IndexFlatL2(item_embs.shape[1])
+    idx.add(item_embs)
+    _, indices = idx.search(user_emb, min(top_k, len(items)))
+    seen_links: set[str] = set()
     results = []
     for i in indices[0]:
         it = items[i]
@@ -210,76 +219,174 @@ def retrieve_top_items(user_text: str, items: list[dict], top_k: int = 5) -> lis
 
 
 # ---------------------------------------------------------------------------
-# Main pipeline
+# Tab 1: Quick Match — uses the pre-loaded seed index via /match endpoint
 # ---------------------------------------------------------------------------
 
-def run_pipeline(profile_file, urls_input: str, top_k: int = 5):
+def _extract_profile_text(profile_file) -> str:
     if profile_file is None:
-        return "Please upload a profile file."
+        return ""
+    return extract_text_from_file(profile_file)
+
+
+def quick_match(profile_file, profile_text: str, top_k: int) -> str:
+    """Match against the pre-loaded seed index (instant — no scraping)."""
+    text = profile_text.strip()
+    if not text and profile_file is not None:
+        text = _extract_profile_text(profile_file)
+    if not text:
+        return "⚠️ Please upload a resume/CV file or type your profile in the text box."
+
+    if not _api_module._index_ready.is_set():
+        return "⏳ The scholarship index is still loading. This usually takes 10–30 seconds. Please try again shortly."
+
+    # Call the match logic directly (in-process, no HTTP round-trip)
+    from api import MatchRequest, match as _match
+    try:
+        resp = _match(MatchRequest(profile=text, top_k=int(top_k)))
+    except Exception as e:
+        return f"❌ Error: {e}"
+
+    if not resp.results:
+        return "No matching scholarships found. Try broadening your profile description."
+
+    lines = [f"### 🎓 Top {len(resp.results)} Scholarships for Your Profile\n",
+             f"*Searched {resp.total_indexed} indexed scholarships*\n\n---\n"]
+    for i, r in enumerate(resp.results, 1):
+        lines.append(f"**{i}. [{r.title}]({r.link})**")
+        if r.source:
+            lines.append(f"  *Source: {r.source}*")
+        lines.append(f"  {r.description[:250]}…\n")
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
+# Tab 2: Custom Search — user provides URLs, scrapes on-the-fly with httpx
+# ---------------------------------------------------------------------------
+
+def custom_search(profile_file, profile_text: str, urls_input: str, top_k: int) -> str:
+    text = profile_text.strip()
+    if not text and profile_file is not None:
+        text = _extract_profile_text(profile_file)
+    if not text:
+        return "⚠️ Please upload a resume/CV file or type your profile in the text box."
     if not urls_input.strip():
-        return "Please enter at least one URL."
+        return "⚠️ Please enter at least one URL to search."
 
-    # 1. Extract user profile text
-    user_text = extract_text_from_file(profile_file)
-    if not user_text.strip():
-        return "Could not extract text from your profile file."
-
-    # 2. Scrape each URL and extract individual items
-    urls = [u.strip() for u in urls_input.split(',') if u.strip()]
-    all_items = []
-    scrape_log = []
+    urls = [u.strip() for u in urls_input.split(",") if u.strip()]
+    all_items: list[dict] = []
+    log_lines: list[str] = []
     for url in urls:
-        items = scrape_items(url)
-        all_items.extend(items)
-        scrape_log.append(f"✓ {url} → {len(items)} items found")
+        batch = scrape_items(url)
+        valid = [b for b in batch if not b["description"].startswith("[Error")]
+        all_items.extend(valid)
+        log_lines.append(f"- `{url}` → {len(valid)} items")
 
     if not all_items:
-        return "No content could be scraped from the provided URLs."
+        return "❌ No content could be scraped from the provided URLs. They may block bots or require JavaScript."
 
-    # 3. Retrieve top matching items
-    top_items = retrieve_top_items(user_text, all_items, top_k=top_k)
+    top_items = retrieve_top_items(text, all_items, top_k=int(top_k))
+    if not top_items:
+        return "No matching items found."
 
-    # 4. Format output — show title + link only (clean list)
-    output_lines = ["## Top Matching Opportunities\n", "\n".join(scrape_log), "\n---\n"]
+    lines = [f"### 🔍 Top {len(top_items)} Matches from Custom URLs\n",
+             "**Scrape log:**\n" + "\n".join(log_lines) + "\n\n---\n"]
     for i, item in enumerate(top_items, 1):
-        output_lines.append(f"{i}. [{item['title']}]({item['link']})\n")
-    return "\n".join(output_lines)
+        lines.append(f"**{i}. [{item['title']}]({item['link']})**")
+        lines.append(f"  {item['description'][:250]}…\n")
+    return "\n".join(lines)
+
 
 
 # ---------------------------------------------------------------------------
-# Gradio UI
+# Gradio UI — two tabs
 # ---------------------------------------------------------------------------
 
-DEFAULT_URL = (
-    "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/"
-    "?status=3&origin=&subjectGrps=F&daad=&intention=&q=&page=1&back=1"
-)
+_PROFILE_HELP = "Upload a PDF/DOCX resume **or** type/paste your background below."
 
-with gr.Blocks(title="Opportunity Matcher") as demo:
+with gr.Blocks(
+    title="Fundora — Scholarship Matcher",
+    theme=gr.themes.Soft(),
+    css=".gr-button-primary { background: #2563eb !important; }",
+) as demo:
     gr.Markdown(
-        "# Scholarship & Opportunity Matcher\n"
-        "Upload your profile/background file and paste any URLs (comma-separated). "
-        "The tool scrapes the pages, encodes all content with MiniLM, and retrieves "
-        "the most relevant sections for your profile using FAISS."
+        "# 🎓 Fundora — AI Scholarship Matcher\n"
+        "Find scholarships that match your profile from a curated index of 90+ "
+        "global programmes (Chevening, DAAD, Fulbright, Google PhD, MEXT, Vanier, and more).\n\n"
+        "> **Free to use. No login required.**"
     )
-    with gr.Row():
-        with gr.Column():
-            profile_file = gr.File(
-                label="Your Profile / Background (TXT, PDF, DOCX)",
-                file_types=[".txt", ".pdf", ".docx"]
-            )
-            urls_input = gr.Textbox(
-                label="URLs to scrape (comma-separated)",
-                value=DEFAULT_URL,
-                lines=3
-            )
-            top_k = gr.Slider(1, 20, value=5, step=1, label="Number of top matches")
-            btn = gr.Button("Find Opportunities", variant="primary")
-        with gr.Column():
-            output = gr.Markdown(label="Results")
 
-    btn.click(run_pipeline, inputs=[profile_file, urls_input, top_k], outputs=output)
+    with gr.Tabs():
+        # ── Tab 1: Quick Match (seed index) ───────────────────────────────
+        with gr.TabItem("⚡ Quick Match  (recommended)"):
+            gr.Markdown(
+                "Match against our **pre-loaded index of 90+ scholarships** — results in seconds."
+            )
+            with gr.Row():
+                with gr.Column(scale=1):
+                    qm_file = gr.File(
+                        label="Upload Resume / CV  (PDF, DOCX, TXT)",
+                        file_types=[".txt", ".pdf", ".docx"],
+                    )
+                    qm_text = gr.Textbox(
+                        label="Or paste / type your profile here",
+                        placeholder=(
+                            "e.g. Indian student, BE Electronics, GPA 8.0, "
+                            "ML research, LLM quantization, seeking MS abroad…"
+                        ),
+                        lines=5,
+                    )
+                    qm_topk = gr.Slider(1, 20, value=8, step=1, label="Results to show")
+                    qm_btn = gr.Button("Find Scholarships", variant="primary")
+                with gr.Column(scale=2):
+                    qm_out = gr.Markdown(label="Results")
+
+            qm_btn.click(
+                quick_match,
+                inputs=[qm_file, qm_text, qm_topk],
+                outputs=qm_out,
+            )
+
+        # ── Tab 2: Custom Search (user-provided URLs) ──────────────────────
+        with gr.TabItem("🔍 Custom Search  (any URL)"):
+            gr.Markdown(
+                "Paste **any scholarship or opportunity page URLs** — Fundora will scrape "
+                "and rank them against your profile on the fly."
+            )
+            with gr.Row():
+                with gr.Column(scale=1):
+                    cs_file = gr.File(
+                        label="Upload Resume / CV  (PDF, DOCX, TXT)",
+                        file_types=[".txt", ".pdf", ".docx"],
+                    )
+                    cs_text = gr.Textbox(
+                        label="Or paste / type your profile here",
+                        placeholder="e.g. Nigerian student, BSc Computer Science, 3.8 GPA, data science focus…",
+                        lines=5,
+                    )
+                    cs_urls = gr.Textbox(
+                        label="URLs to search (comma-separated)",
+                        placeholder="https://www.daad.de/..., https://opportunitydesk.org/...",
+                        lines=3,
+                    )
+                    cs_topk = gr.Slider(1, 20, value=5, step=1, label="Results to show")
+                    cs_btn = gr.Button("Search", variant="primary")
+                with gr.Column(scale=2):
+                    cs_out = gr.Markdown(label="Results")
+
+            cs_btn.click(
+                custom_search,
+                inputs=[cs_file, cs_text, cs_urls, cs_topk],
+                outputs=cs_out,
+            )
+
+    gr.Markdown(
+        "---\n"
+        "Made with ❤️ by [Kabir Potdar](https://github.com/Kabir08) · "
+        "[GitHub](https://github.com/Kabir08/Fundora) · "
+        "[API docs](/docs) · [Privacy](/privacy)"
+    )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(server_port=7860)
+
 

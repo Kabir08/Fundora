@@ -674,3 +674,21 @@ def privacy_policy():
 </body>
 </html>
 """
+
+
+# ---------------------------------------------------------------------------
+# Gradio UI — mounted at /ui  (imported after app is fully defined to avoid
+# circular import; app.py references api._model through the module object)
+# ---------------------------------------------------------------------------
+from fastapi.responses import RedirectResponse
+
+@app.get("/")
+def root():
+    """Redirect bare root to the Gradio UI."""
+    return RedirectResponse(url="/ui")
+
+
+import gradio as gr
+from app import demo as _gradio_demo   # noqa: E402  (intentionally late import)
+
+gr.mount_gradio_app(app, _gradio_demo, path="/ui")
