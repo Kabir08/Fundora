@@ -1,13 +1,15 @@
 """
 FastAPI backend for the Scholarship Matcher ChatGPT Action.
-Scrapes preset scholarship sites, builds a FAISS index, and serves
-a /match endpoint that ChatGPT calls with a user's profile text.
+Scrapes preset scholarship sites, stores embeddings in a persistent ChromaDB
+vector database (on disk), and serves a /match endpoint that ChatGPT calls
+with a user's profile text.  Scholarships are re-scraped only every 7 days;
+between restarts the index is read from disk — keeping RAM usage low on Render.
 """
 from __future__ import annotations
 
 import asyncio
+import json
 import os
-import pickle
 import threading
 import time
 from collections import Counter
@@ -15,7 +17,6 @@ from contextlib import asynccontextmanager
 from typing import Optional
 from urllib.parse import urljoin, urlparse
 
-import faiss
 import numpy as np
 from bs4 import BeautifulSoup
 from fastapi import FastAPI, HTTPException
@@ -29,8 +30,11 @@ from sentence_transformers import SentenceTransformer
 # Config
 # ---------------------------------------------------------------------------
 
-CACHE_FILE = ".scholarship_cache.pkl"
-CACHE_TTL_SECONDS = 24 * 3600  # 24 h
+CHROMA_DIR = "./chroma_db"
+COLLECTION_NAME = "scholarships"
+META_FILE = "./chroma_db/meta.json"
+SCRAPE_TTL_DAYS = 7          # Re-scrape only if index is older than this
+ENCODE_BATCH_SIZE = 64       # Encode in batches to cap peak RAM
 MAX_PAGES_PER_SITE = 4
 PAGE_DELAY_SECONDS = 1.0
 DEFAULT_TOP_K = 10
@@ -38,16 +42,68 @@ DEFAULT_TOP_K = 10
 # (name, url_template, paginated)
 # For paginated sites use {page} placeholder; page numbering starts at 1.
 PRESET_SITES: list[tuple[str, str, bool]] = [
-    ("DAAD",             "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?status=3&page={page}", True),
-    ("GyanDhan",         "https://www.gyandhan.com/scholarships?page={page}", True),
-    ("OpportunityDesk",  "https://opportunitydesk.org/category/scholarships/page/{page}/", True),
-    ("Scholars4Dev",     "https://www.scholars4dev.com/category/scholarships/page/{page}/", True),
-    ("AfterSchoolAfrica","https://afterschoolafrica.com/scholarships/page/{page}/", True),
-    ("UCL",              "https://www.ucl.ac.uk/scholarships/fee-partnerships", False),
-    ("Chevening",        "https://www.chevening.org/scholarships/", False),
-    ("Commonwealth",     "https://cscuk.fcdo.gov.uk/scholarships/", False),
-    ("EURAXESS",         "https://euraxess.ec.europa.eu/jobs/search", False),
-    ("FindAPhD",         "https://www.findaphd.com/phds/", False),
+    # ── Global aggregators ────────────────────────────────────────────────
+    ("OpportunityDesk",      "https://opportunitydesk.org/category/scholarships/page/{page}/", True),
+    ("Scholars4Dev",         "https://www.scholars4dev.com/category/scholarships/page/{page}/", True),
+    ("ScholarshipPortal",    "https://www.scholarshipportal.com/scholarships/?page={page}", True),
+    ("FindAPhD",             "https://www.findaphd.com/phds/", False),
+    ("ScholarshipsForDev",   "https://scholarshipsfordevelopment.org/scholarships/page/{page}/", True),
+    ("InternationalScholarships", "https://www.internationalscholarships.com/", False),
+    ("CareerFoundry",        "https://careerfoundry.com/en/blog/career-change/scholarships/", False),
+
+    # ── Europe ────────────────────────────────────────────────────────────
+    ("DAAD",                 "https://www2.daad.de/deutschland/stipendium/datenbank/en/21148-scholarship-database/?status=3&page={page}", True),
+    ("EURAXESS",             "https://euraxess.ec.europa.eu/jobs/search", False),
+    ("ErasmusPlus",          "https://erasmus-plus.ec.europa.eu/opportunities/opportunities-for-individuals/students", False),
+    ("HeinrichBoell",        "https://www.boell.de/en/stipendien", False),
+    ("Chevening",            "https://www.chevening.org/scholarships/", False),
+    ("Commonwealth",         "https://cscuk.fcdo.gov.uk/scholarships/", False),
+    ("UCL",                  "https://www.ucl.ac.uk/scholarships/scholarships-students-outside-uk", False),
+    ("GatesOxford",          "https://www.ox.ac.uk/admissions/graduate/fees-and-funding/fees-funding-and-scholarship-search/scholarships-1", False),
+    ("GatesCambridge",       "https://www.gatescambridge.org/apply/", False),
+    ("RhodesScholarship",    "https://www.rhodeshouse.ox.ac.uk/scholarships/the-rhodes-scholarship/", False),
+    ("ScholarshipHub",       "https://www.thescholarshiphub.org.uk/scholarships/page/{page}/", True),
+
+    # ── United States ─────────────────────────────────────────────────────
+    ("Fulbright",            "https://foreign.fulbrightonline.org/about/foreign-fulbright", False),
+    ("Fastweb",              "https://www.fastweb.com/college-scholarships", False),
+    ("CollegeBoard",         "https://bigfuture.collegeboard.org/pay-for-college/scholarship-search", False),
+    ("GoingMerry",           "https://www.goingmerry.com/resources/scholarships/", False),
+    ("Niche",                "https://www.niche.com/colleges/scholarships/", False),
+    ("BoldOrg",              "https://bold.org/scholarships/", False),
+
+    # ── Canada ───────────────────────────────────────────────────────────
+    ("EduCanada",            "https://www.educanada.ca/scholarships-bourses/index.aspx?lang=eng", False),
+    ("VanierScholarship",    "https://vanier.gc.ca/en/home-accueil.html", False),
+    ("TrudeauFoundation",    "https://www.trudeaufoundation.ca/programs/phd-scholarships", False),
+    ("StellarScholarships",  "https://www.scholarshipscanada.com/Scholarships/FeaturedScholarships.aspx", False),
+
+    # ── Australia ─────────────────────────────────────────────────────────
+    ("AustraliaAwards",      "https://www.australiaawards.gov.au/scholarships", False),
+    ("StudyInAustralia",     "https://www.studyinaustralia.gov.au/english/australian-scholarships", False),
+    ("ANUScholarships",      "https://www.anu.edu.au/study/scholarships/find-a-scholarship", False),
+    ("MelbourneUni",         "https://scholarships.unimelb.edu.au/international/find-scholarships", False),
+
+    # ── Asia ─────────────────────────────────────────────────────────────
+    ("MEXT-Japan",           "https://www.mext.go.jp/en/policy/education/highered/title02/detail02/sdetail02/1373897.htm", False),
+    ("JASSO-Japan",          "https://www.jasso.or.jp/en/study_j/scholarship/", False),
+    ("GKS-Korea",            "https://www.studyinkorea.go.kr/en/sub/gks/allnew_invite.do", False),
+    ("CSC-China",            "https://www.campuschina.org/scholarships/index.html", False),
+    ("SingaporeGovt",        "https://www.moe.gov.sg/financial-matters/scholarships", False),
+    ("ASEAN-Scholarships",   "https://www.moe.gov.sg/financial-matters/scholarships/asean", False),
+    ("GyanDhan",             "https://www.gyandhan.com/scholarships?page={page}", True),
+
+    # ── Africa / Middle East ──────────────────────────────────────────────
+    ("AfterSchoolAfrica",    "https://afterschoolafrica.com/scholarships/page/{page}/", True),
+    ("AfricanUnion",         "https://au.int/en/scholarships", False),
+    ("MasterCard-Foundation","https://mastercardfoundation.org/programs/scholars-program", False),
+
+    # ── International organisations ───────────────────────────────────────
+    ("WorldBankYPP",         "https://www.worldbank.org/en/programs/scholarships", False),
+    ("ADBScholarship",       "https://www.adb.org/work-with-us/careers/scholarships", False),
+    ("AgaKhan",              "https://www.akdn.org/our-agencies/aga-khan-foundation/international-scholarship-programme", False),
+    ("UNScholarships",       "https://www.un.org/en/academic-impact/page/scholarship-opportunities", False),
+    ("RotaryFoundation",     "https://www.rotary.org/en/our-programs/scholarships", False),
 ]
 
 # ---------------------------------------------------------------------------
@@ -55,12 +111,11 @@ PRESET_SITES: list[tuple[str, str, bool]] = [
 # ---------------------------------------------------------------------------
 
 _model: Optional[SentenceTransformer] = None
-_items: list[dict] = []          # raw scraped items
-_index: Optional[faiss.IndexFlatL2] = None
-_item_embeddings: Optional[np.ndarray] = None
+_chroma_client = None          # chromadb.PersistentClient
+_chroma_collection = None      # chromadb.Collection — embeddings live on disk, not RAM
 _index_ready = threading.Event()
 _index_lock = threading.Lock()
-_index_error: Optional[str] = None    # set if build failed
+_index_error: Optional[str] = None
 _build_started_at: Optional[float] = None
 
 # ---------------------------------------------------------------------------
@@ -229,14 +284,87 @@ def scrape_site(name: str, url_template: str, paginated: bool) -> list[dict]:
     return all_items
 
 # ---------------------------------------------------------------------------
+# ChromaDB helpers
+# ---------------------------------------------------------------------------
+
+def _init_chroma():
+    """Create (or open) the persistent ChromaDB collection."""
+    global _chroma_client, _chroma_collection
+    import chromadb
+    os.makedirs(CHROMA_DIR, exist_ok=True)
+    _chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
+    _chroma_collection = _chroma_client.get_or_create_collection(
+        name=COLLECTION_NAME,
+        metadata={"hnsw:space": "cosine"},
+    )
+
+
+def _collection_is_fresh() -> bool:
+    """True if the collection has data scraped within SCRAPE_TTL_DAYS."""
+    if _chroma_collection is None or _chroma_collection.count() == 0:
+        return False
+    if not os.path.exists(META_FILE):
+        return False
+    with open(META_FILE) as f:
+        data = json.load(f)
+    age_days = (time.time() - data.get("last_scraped", 0)) / 86400
+    return age_days < SCRAPE_TTL_DAYS
+
+
+def _rebuild_collection():
+    """Drop and recreate the ChromaDB collection, returning the new instance."""
+    global _chroma_client, _chroma_collection
+    import chromadb
+    os.makedirs(CHROMA_DIR, exist_ok=True)
+    _chroma_client = chromadb.PersistentClient(path=CHROMA_DIR)
+    try:
+        _chroma_client.delete_collection(COLLECTION_NAME)
+    except Exception:
+        pass
+    _chroma_collection = _chroma_client.create_collection(
+        name=COLLECTION_NAME,
+        metadata={"hnsw:space": "cosine"},
+    )
+
+
+def _store_to_chroma(items: list[dict]):
+    """
+    Encode items in small batches (caps peak RAM) and upsert into ChromaDB.
+    Embeddings are persisted to disk — not held in memory after this call.
+    """
+    global _model
+    total = len(items)
+    for batch_start in range(0, total, ENCODE_BATCH_SIZE):
+        batch = items[batch_start: batch_start + ENCODE_BATCH_SIZE]
+        texts = [it["description"] for it in batch]
+        embs = _model.encode(
+            texts, convert_to_numpy=True, show_progress_bar=False
+        ).tolist()
+        _chroma_collection.add(
+            ids=[f"item_{batch_start + j}" for j in range(len(batch))],
+            embeddings=embs,
+            documents=texts,
+            metadatas=[
+                {
+                    "title": it["title"][:500],
+                    "link": it["link"][:500],
+                    "source": it.get("source", ""),
+                }
+                for it in batch
+            ],
+        )
+    # Write scrape timestamp to meta file
+    with open(META_FILE, "w") as f:
+        json.dump({"last_scraped": time.time(), "count": total}, f)
+    print(f"[index] Stored {total} items to ChromaDB.")
+
+
+# ---------------------------------------------------------------------------
 # Index build / cache
 # ---------------------------------------------------------------------------
 
-def build_index() -> tuple[list[dict], np.ndarray, faiss.IndexFlatL2]:
-    global _model
-    if _model is None:
-        _model = SentenceTransformer("all-MiniLM-L6-v2")
-
+def _scrape_all() -> list[dict]:
+    """Scrape every preset site and return the combined item list."""
     all_items: list[dict] = []
     for name, url_tpl, paginated in PRESET_SITES:
         print(f"[index] Scraping {name}…")
@@ -245,47 +373,35 @@ def build_index() -> tuple[list[dict], np.ndarray, faiss.IndexFlatL2]:
             all_items.extend(batch)
         except Exception as exc:
             print(f"[index] {name} failed: {exc}")
-
-    texts = [it["description"] for it in all_items]
-    embeddings = _model.encode(texts, convert_to_numpy=True,
-                               show_progress_bar=True).astype("float32")
-    idx = faiss.IndexFlatL2(embeddings.shape[1])
-    idx.add(embeddings)
-    print(f"[index] Built with {len(all_items)} items.")
-    return all_items, embeddings, idx
+    return all_items
 
 
 def load_or_build():
-    global _items, _item_embeddings, _index, _index_error, _build_started_at
+    global _model, _index_error, _build_started_at
     _build_started_at = time.time()
     try:
-        if os.path.exists(CACHE_FILE):
-            age = time.time() - os.path.getmtime(CACHE_FILE)
-            if age < CACHE_TTL_SECONDS:
-                print("[index] Loading from cache…")
-                with open(CACHE_FILE, "rb") as f:
-                    data = pickle.load(f)
-                # ensure model is loaded
-                global _model
-                if _model is None:
-                    _model = SentenceTransformer("all-MiniLM-L6-v2")
-                with _index_lock:
-                    _items = data["items"]
-                    _item_embeddings = data["embeddings"]
-                    _index = faiss.IndexFlatL2(_item_embeddings.shape[1])
-                    _index.add(_item_embeddings)
-                _index_ready.set()
-                print(f"[index] Loaded {len(_items)} items from cache.")
-                return
+        _init_chroma()
 
-        items, embeddings, idx = build_index()
-        with open(CACHE_FILE, "wb") as f:
-            pickle.dump({"items": items, "embeddings": embeddings}, f)
+        if _collection_is_fresh():
+            count = _chroma_collection.count()
+            print(f"[index] ChromaDB is fresh ({count} items). Skipping scrape.")
+            if _model is None:
+                _model = SentenceTransformer("all-MiniLM-L6-v2")
+            _index_ready.set()
+            return
+
+        if _model is None:
+            _model = SentenceTransformer("all-MiniLM-L6-v2")
+
+        print("[index] Scraping scholarship sites…")
+        items = _scrape_all()
+
         with _index_lock:
-            _items = items
-            _item_embeddings = embeddings
-            _index = idx
+            _rebuild_collection()
+            _store_to_chroma(items)
+
         _index_ready.set()
+        print(f"[index] Ready — {len(items)} items indexed.")
     except Exception as exc:
         _index_error = str(exc)
         print(f"[index] Build failed: {exc}")
@@ -358,9 +474,10 @@ def health():
 
 @app.get("/index_status", response_model=IndexStatus)
 def index_status():
+    count = _chroma_collection.count() if _chroma_collection is not None else 0
     return IndexStatus(
         ready=_index_ready.is_set(),
-        total_items=len(_items),
+        total_items=count,
         error=_index_error,
         build_started_at=_build_started_at,
     )
@@ -378,45 +495,49 @@ def match(req: MatchRequest):
 
     top_k = max(1, min(req.top_k, 50))
 
-    with _index_lock:
-        items = _items
-        idx = _index
+    # Encode query — only the single query vector lives in RAM
+    user_emb = _model.encode([req.profile], convert_to_numpy=True).tolist()
 
-    user_emb = _model.encode([req.profile],
-                              convert_to_numpy=True).astype("float32")
-    distances, indices = idx.search(user_emb, min(top_k * 3, len(items)))
+    with _index_lock:
+        raw = _chroma_collection.query(
+            query_embeddings=user_emb,
+            n_results=min(top_k * 3, _chroma_collection.count()),
+        )
 
     seen_links: set[str] = set()
     results: list[ScholarshipResult] = []
-    for i in indices[0]:
-        it = items[i]
-        if it["link"] in seen_links:
+    for i, _id in enumerate(raw["ids"][0]):
+        meta = raw["metadatas"][0][i]
+        doc = raw["documents"][0][i]
+        link = meta.get("link", "")
+        if link in seen_links:
             continue
-        seen_links.add(it["link"])
+        seen_links.add(link)
         results.append(ScholarshipResult(
-            title=it["title"],
-            link=it["link"],
-            description=it["description"][:400],
-            source=it.get("source"),
+            title=meta.get("title", ""),
+            link=link,
+            description=doc[:400],
+            source=meta.get("source"),
         ))
         if len(results) >= top_k:
             break
 
     return MatchResponse(
         results=results,
-        total_indexed=len(items),
+        total_indexed=_chroma_collection.count(),
         index_ready=True,
     )
 
 
 @app.post("/refresh_index")
 def refresh_index():
-    """Force rebuild the index (clears cache and re-scrapes)."""
-    if os.path.exists(CACHE_FILE):
-        os.remove(CACHE_FILE)
+    """Force rebuild the index (clears ChromaDB collection and re-scrapes)."""
     global _index_error
     _index_error = None
     _index_ready.clear()
+    # Remove meta file so freshness check fails and a full rescrape is triggered
+    if os.path.exists(META_FILE):
+        os.remove(META_FILE)
     t = threading.Thread(target=load_or_build, daemon=True)
     t.start()
     return {"status": "rebuild started"}
@@ -475,9 +596,10 @@ def privacy_policy():
   <h2>4. Third-Party Data Sources</h2>
   <p>
     The Service scrapes publicly available scholarship listings from third-party websites
-    (DAAD, GyanDhan, Chevening, UCL, Commonwealth, and others). We do not control the privacy
-    practices of those sites. The scraped content is cached locally for up to 24 hours to
-    reduce load on external servers.
+    spanning multiple regions — including DAAD, Chevening, Commonwealth, Fulbright, Erasmus+,
+    Australia Awards, MEXT, GKS, CSC, Vanier, World Bank, and many others. We do not control
+    the privacy practices of those sites. The scraped content is stored in a local vector
+    database and refreshed automatically every 7 days to reduce load on external servers.
   </p>
 
   <h2>5. ChatGPT / OpenAI Integration</h2>
